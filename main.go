@@ -25,7 +25,7 @@ var kmz bool
 
 // other global variables
 var outFilesDir string
-var jsonFilesData jsonArr
+var jsonFileItems jsonArr
 
 // mode
 type modeT string
@@ -183,7 +183,7 @@ func setup() {
 	if jsonFilepath != "" {
 		jsonData, err := loadJson(jsonFilepath)
 		fatalIfErr(err)
-		jsonFilesData = jsonData["files"].(jsonArr)
+		jsonFileItems = jsonData["items"].(jsonArr)
 	}
 }
 
@@ -233,8 +233,8 @@ func prepareImage(rootDir, rootRelPath string) imagePlacemark {
 	}
 
 	// overwrite data from exif with data from json
-	if jsonFilesData != nil {
-		for _, obj := range jsonFilesData {
+	if jsonFileItems != nil {
+		for _, obj := range jsonFileItems {
 			if f, ok := obj.(jsonObj)["file"]; ok {
 				fs := normalizePath(f.(string))
 				if keepDirStructure && fs == img.rootRelPath || includePathIntoFilename(fs) == img.rootRelPath {
