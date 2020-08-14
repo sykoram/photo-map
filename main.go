@@ -183,7 +183,11 @@ func setup() {
 	if jsonFilepath != "" {
 		jsonData, err := loadJson(jsonFilepath)
 		fatalIfErr(err)
-		jsonFileItems = jsonData["items"].(jsonArr)
+		if jsonData["items"] == nil {
+			log.Fatalln("Cannot find key 'items' in the JSON file.")
+		} else {
+			jsonFileItems = jsonData["items"].(jsonArr)
+		}
 	}
 }
 
@@ -225,8 +229,7 @@ func prepareImage(rootDir, rootRelPath string) imagePlacemark {
 		rootDir: rootDir,
 	}
 	err := img.loadOrigExif(joinPaths(img.rootDir, img.rootRelPath))
-	printIfErr(err)
-	if exif.IsCriticalError(err) {
+	if err != nil && exif.IsCriticalError(err) {
 		log.Println("EXIF of", img.rootRelPath, "has a critical error:", err)
 	} else {
 		img.applyDataFromExif()
