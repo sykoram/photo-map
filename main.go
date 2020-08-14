@@ -63,14 +63,16 @@ func main() {
 
 	k, doc := getKmlDoc()
 
+	fmt.Println("Collecting images...")
 	if keepDirStructure {
 		fatalIfErr(copyTree(imgDir, outFilesDir))
 	} else {
 		fatalIfErr(copyImagesFlat(imgDir, outFilesDir))
 	}
-
 	images, err := getImages(outFilesDir)
 	fatalIfErr(err)
+
+	fmt.Println("Generating KML document...")
 
 	if sortByTime {
 		sort.Slice(images, func(i int, j int) bool {
@@ -118,8 +120,10 @@ func main() {
 	fatalIfErr(k.WriteIndent(of, "", "  "))
 
 	if kmz {
+		fmt.Println("Creating KMZ file...")
 		zipFolderContents(outDir, outDir + "/doc.kmz")
 	}
+	fmt.Println("Done!")
 }
 
 /*
