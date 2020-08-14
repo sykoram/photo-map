@@ -14,7 +14,7 @@ An image gallery placed on a map!
 
 [Go](https://golang.org/) and [Git](https://git-scm.com/) have to be installed.
 
-Clone or download this repo, preferably into `$GOPATH/scr/github.com/sykoram/photo-map`.
+Clone or download this repo, preferably into `$GOPATH/src/github.com/sykoram/photo-map`.
 
 Download and install all dependencies:
 ```sh
