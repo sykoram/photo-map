@@ -1,0 +1,22 @@
+{
+  "__comment": "'files' key is required. Its value is an array of objects, each for an individual file.",
+  "files": [
+  {
+    "__comment": "If there are some keys left out, the EXIF values will not be replaced.",
+
+    "__comment0": "File path should be relative to the root image dir.",
+    "file": "path/to/file.ext",
+
+    "__comment1": "EXIF dateTime format is '2006:01:02 15:04:05'. Any trailing spaces or null chars will be trimmed.",
+    "dateTime": "2006:01:02 15:04:05",
+
+    "__comment2": "Has to be either a valid tz database name or 'Local'. See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones",
+    "timeZone": "UTC",
+
+    "__comment3": "float64, positive=North, negative=South",
+    "latitude": 32.5,
+
+    "__comment4": "float64, positive=East, negative=West",
+    "longitude": 35.8
+  }
+]}
