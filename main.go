@@ -49,8 +49,8 @@ func init() {
 	flag.StringVar((*string)(&mode), "m", string(htmlImageM), fmt.Sprintf("Mode of image representation: %s", availableModes))
 
 	flag.StringVar(&jsonFilepath, "json", "", "JSON file with custom image information\n(it has higher priority than the EXIF info)")
-	flag.BoolVar(&sortByTime, "sort-by-time", false, "Sort images by time (DateTimeOriginal eventually DateTime)")
-	flag.BoolVar(&genPath, "path", false, "Generate path (-sort-by-time is recommended)")
+	flag.BoolVar(&sortByTime, "timesort", false, "Sort images by time (DateTimeOriginal eventually DateTime)")
+	flag.BoolVar(&genPath, "path", false, "Generate path (-timesort is recommended)")
 	flag.BoolVar(&pathIncludeZeroLoc, "include-zero-location", false, "Include locations with 0,0 coordinate into the path (won't work without -path)")
 	flag.BoolVar(&kmz, "kmz", false, "Create KMZ file (zip the output directory)")
 }
