@@ -91,7 +91,7 @@ func copyTree(src, dst string) error {
 	src = normalizePath(src)
 	err := filepath2.Walk(src, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			log.Println("[ERROR]", path, err)
+			log.Println(path, err)
 		}
 
 		srcRelPath := normalizePath(path)
@@ -101,7 +101,7 @@ func copyTree(src, dst string) error {
 		if info.Mode().IsRegular() {
 			err = copyFile(src+"/"+srcRelPath, dstPath)
 			if err != nil {
-				log.Println("[ERROR]", path, err)
+				log.Println(path, err)
 			}
 		}
 
@@ -143,18 +143,18 @@ func copyImagesFlat(src, dst string) error {
 	src = normalizePath(src)
 	err := filepath2.Walk(src, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			log.Println("[ERROR]", path, err)
+			log.Println(path, err)
 		}
 
 		srcRelPath := normalizePath(path)
 		srcRelPath = strings.Replace(srcRelPath, src+"/", "", 1) // remove the src dir from the path
-		dstFileName := includePathIntoFilename(srcRelPath)       // todo in json
+		dstFileName := includePathIntoFilename(srcRelPath)
 		dstPath := normalizePath(dst+"/"+dstFileName)
 
 		if info.Mode().IsRegular() && isImage(info) {
 			err = copyFile(src+"/"+srcRelPath, dstPath)
 			if err != nil {
-				log.Println("[ERROR]", path, err)
+				log.Println(path, err)
 			}
 		}
 		return nil

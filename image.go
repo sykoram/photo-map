@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"github.com/rwcarlsen/goexif/exif"
+	"log"
 	"os"
 	filepath2 "path/filepath"
 	"strings"
@@ -53,34 +53,28 @@ func (i *imagePlacemark) applyDataFromExif() {
 	if i.origExif == nil {
 		return
 	}
-	// fixme handle errors? warn?
-	// description
-	//d, err := i.origExif.Get(exif.ImageDescription)
-	//if err == nil {
-	//	i.description, _ = d.StringVal()
-	//}
+
 	// dateTime
 	t, err := i.origExif.DateTime()
 	if err == nil {
 		i.dateTime = t
 	}
+
 	// latitude & longitude
 	lat, lon, err := i.origExif.LatLong()
-	if err == nil {  // fixme isGpsError?
+	if err == nil {
 		i.latitude = lat
 		i.longitude = lon
 		// todo image hasLocation bool property
 	}
 
 	// width & height
-	// fixme w and h == 0 ?!
 	if w, err := i.origExif.Get(exif.ImageWidth); err == nil {
 		i.width, _ = w.Int64(0)
 	}
 	if l, err := i.origExif.Get(exif.ImageLength); err == nil {
 		i.length, _ = l.Int64(0)
 	}
-	//fmt.Println(i.rootRelPath, i.width, i.length)  // xxx
 }
 
 /*
@@ -109,13 +103,11 @@ func (i *imagePlacemark) applyDataFromJson() {
 			if loc, err := time.LoadLocation(tz.(string)); err == nil {
 				location = loc
 			} else {
-				fmt.Println(err)
+				log.Println(err)
 			}
 		}
 		i.dateTime, err = time.ParseInLocation(exifTimeLayout, dateStr, location)
-		if err != nil {
-			fmt.Println(err)
-		}
+		printIfErr(err)
 	}
 
 	// change timeZone only
@@ -130,7 +122,7 @@ func (i *imagePlacemark) applyDataFromJson() {
 				// add the difference to the dateTime to fix the time zone (change the timestamp)
 				i.dateTime = i.dateTime.Add(timeZonesDiff)
 			} else {
-				fmt.Println(err)
+				log.Println(err)
 			}
 		}
 	}
