@@ -1,5 +1,6 @@
 # photo-map
-This program generates a KML (or KMZ) file with geotagged photos.
+
+An image gallery placed on a map!
 
 ## Table of Contents
 - [Setup](#setup)
