@@ -109,7 +109,6 @@ func addPhotoOverlayPlacemark(el *kml.CompoundElement, img imagePlacemark) {
 	}
 	id := img.name 	// todo better id
 	coordinate := kml.Coordinate{Lat: img.latitude, Lon: img.longitude}
-	// fixme why is it a square?
 	photoOverlay := kml.PhotoOverlay(
 		kml.Name(img.name),
 		kml.Description(`<!DOCTYPE html><html><head></head><body>

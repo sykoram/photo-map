@@ -95,7 +95,7 @@ func main() {
 		img.pathInKml = "files/"+img.rootRelPath
 		img.iconPathInKml = "files/"+img.iconRootRelPath
 		if img.latitude == 0 && img.longitude == 0 {
-			fmt.Println("[WARN]", img.rootRelPath, "GPSLatitude and GPSLongitude == 0")
+			fmt.Println(img.rootRelPath, "GPSLatitude and GPSLongitude == 0")
 			img.description += "[0,0 Position]"
 		}
 
@@ -109,8 +109,7 @@ func main() {
 		case htmlImageM:
 			addHtmlImagePlacemark(doc, img)
 		default:
-			fmt.Println("[ERROR] Unknown mode " + mode)
-			os.Exit(1)
+			log.Fatalln("Unknown mode " + mode)
 		}
 	}
 
@@ -129,12 +128,12 @@ Checks the flags and arguments. If something is not right, fatal error is produc
 */
 func checkCmd() {
 	if imgDir == "" {
-		log.Println("[FATAL] The input directory is required: -i path/to/dir")
+		log.Println("The input directory is required: -i path/to/dir")
 		defer os.Exit(1)
 	}
 
 	if outDir == "" {
-		log.Println("[FATAL] The output directory is required: -o path/to/dir")
+		log.Println("The output directory is required: -o path/to/dir")
 		defer os.Exit(1)
 	}
 
@@ -146,12 +145,12 @@ func checkCmd() {
 		}
 	}
 	if !modeValid {
-		log.Println("[FATAL] Unknown mode: " + mode)
+		log.Println("Unknown mode: " + mode)
 		defer os.Exit(1)
 	}
 
 	if flag.NArg() > 0 {
-		log.Println("[FATAL] Unknown arguments: " + strings.Join(flag.Args(), " "))
+		log.Println("Unexpected arguments: " + strings.Join(flag.Args(), " "))
 		defer os.Exit(1)
 	}
 }
@@ -162,7 +161,7 @@ TODO
 */
 func handleHelp() {
 	if help {
-		fmt.Println("TODO: HELP")
+		fmt.Println("photo-map")
 		fmt.Println("")
 		fmt.Println("Usage:")
 		flag.PrintDefaults()
@@ -198,8 +197,8 @@ func getImages(rootDir string) (images []imagePlacemark, err error) {
 	err = filepath2.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
 		path = normalizePath(path)
 		path = strings.TrimPrefix(path, rootDir+"/")
+		printIfErr(err)
 		if err != nil {
-			fmt.Println("[ERROR]", err)
 			return nil
 		}
 
@@ -226,8 +225,9 @@ func prepareImage(rootDir, rootRelPath string) imagePlacemark {
 		rootDir: rootDir,
 	}
 	err := img.loadOrigExif(joinPaths(img.rootDir, img.rootRelPath))
-	if err != nil && exif.IsCriticalError(err) {
-		fmt.Println("[ERROR]", "EXIF of", img.rootRelPath, "has a critical error:", err)
+	printIfErr(err)
+	if exif.IsCriticalError(err) {
+		log.Println("EXIF of", img.rootRelPath, "has a critical error:", err)
 	} else {
 		img.applyDataFromExif()
 	}
@@ -258,7 +258,16 @@ If there is an error, produces fatal error (prints the error, exits with a code 
  */
 func fatalIfErr(err error) {
 	if err != nil {
-		log.Fatalln("[FATAL]", err)
+		log.Fatalln(err)
+	}
+}
+
+/*
+If there is an error, prints it.
+ */
+func printIfErr(err error) {
+	if err != nil {
+		log.Println(err)
 	}
 }
 
