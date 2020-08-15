@@ -20,8 +20,8 @@ type imagePlacemark struct {
 	pathInKml     string // path used in KML file
 	iconPathInKml string // ~
 
-	origExif *exif.Exif
-	jsonData jsonObj
+	origExif   *exif.Exif
+	customData dataObj
 
 	name 		 string
 	description  string
@@ -81,34 +81,34 @@ func (i *imagePlacemark) applyDataFromExif() {
 }
 
 /*
-Sets the parameter as a JSON data property.
+Sets the field customData to the parameter
  */
-func (i *imagePlacemark) setJsonData(data jsonObj) {
-	i.jsonData = data
+func (i *imagePlacemark) setCustomData(data dataObj) {
+	i.customData = data
 }
 
 /*
-Sets image properties according to the JSON object for the image
-Used JSON fields/keys: "external" string, "dateTime" string, "timeZone" string, "latitude" float64, "longitude" float64
+Sets image properties according to the customData object for the image
+Used JSON/YAML fields/keys: "external" string, "dateTime" string, "timeZone" string, "latitude" float64, "longitude" float64
  */
-func (i *imagePlacemark) applyDataFromJson() {
-	if i.jsonData == nil {
+func (i *imagePlacemark) applyCustomData() {
+	if i.customData == nil {
 		return
 	}
 	var err error
 
 	// external path
-	if ext, ok := i.jsonData["external"]; ok {
+	if ext, ok := i.customData["external"]; ok {
 		i.externalPath = ext.(string)
 		i.iconExternalPath = ext.(string)
 	}
 
 	// dateTime (+ timeZone)
-	if dt, ok := i.jsonData["dateTime"]; ok {
+	if dt, ok := i.customData["dateTime"]; ok {
 		exifTimeLayout := "2006:01:02 15:04:05"
 		dateStr := strings.Trim(dt.(string), "\x00 ")
 		location := time.Local
-		if tz, ok := i.jsonData["timeZone"]; ok {
+		if tz, ok := i.customData["timeZone"]; ok {
 			if loc, err := time.LoadLocation(tz.(string)); err == nil {
 				location = loc
 			} else {
@@ -120,8 +120,8 @@ func (i *imagePlacemark) applyDataFromJson() {
 	}
 
 	// change timeZone only
-	if tz, ok := i.jsonData["timeZone"]; ok {
-		if _, dtExists := i.jsonData["dateTime"]; dtExists == false {
+	if tz, ok := i.customData["timeZone"]; ok {
+		if _, dtExists := i.customData["dateTime"]; dtExists == false {
 			if newLoc, err := time.LoadLocation(tz.(string)); err == nil {
 				// calculate the difference between the new and the old timezone
 				oldLoc := i.dateTime.Location()
@@ -137,10 +137,10 @@ func (i *imagePlacemark) applyDataFromJson() {
 	}
 
 	// latitude & longitude
-	if lat, ok := i.jsonData["latitude"]; ok {
+	if lat, ok := i.customData["latitude"]; ok {
 		i.latitude = lat.(float64)
 	}
-	if lon, ok := i.jsonData["longitude"]; ok {
+	if lon, ok := i.customData["longitude"]; ok {
 		i.longitude = lon.(float64)
 	}
 }

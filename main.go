@@ -17,7 +17,7 @@ import (
 var help bool
 var imgDir string
 var outDir string
-var jsonFilepath string
+var dataFilepath string
 var sortByTime bool
 var genPath bool
 var pathIncludeZeroLoc bool
@@ -25,7 +25,7 @@ var kmz bool
 
 // other global variables
 var outFilesDir string
-var jsonFileItems jsonArr
+var dataFileItems dataArr
 var isExternalPreferable = true
 var isExternalIconPreferable = false
 
@@ -50,7 +50,7 @@ func init() {
 	flag.StringVar(&outDir, "o", "", "Output directory for generated KML file and other copied files. Must be empty or not exist! (required)")
 	flag.StringVar((*string)(&mode), "m", string(htmlImageM), fmt.Sprintf("Mode of image representation: %s", availableModes))
 
-	flag.StringVar(&jsonFilepath, "json", "", "JSON file with custom image information\n(it has higher priority than the EXIF info)")
+	flag.StringVar(&dataFilepath, "data", "", "JSON or YAML file with custom image information\n(it has higher priority than the EXIF info)")
 	flag.BoolVar(&sortByTime, "timesort", false, "Sort images by time (DateTimeOriginal eventually DateTime)")
 	flag.BoolVar(&genPath, "path", false, "Generate path (-timesort is recommended)")
 	flag.BoolVar(&pathIncludeZeroLoc, "include-zero-location", false, "Include locations with 0,0 coordinate into the path (won't work without -path)")
@@ -181,21 +181,31 @@ func handleHelp() {
 /*
 Setup:
 Normalizes paths, sets outFilesDir;
-Loads JSON file with custom image data if possible.
+Loads JSON or YAML file with custom image data if possible.
  */
 func setup() {
 	imgDir = normalizePath(imgDir)
 	outDir = normalizePath(outDir)
 	outFilesDir = outDir + "/files"
-	jsonFilepath = normalizePath(jsonFilepath)
+	dataFilepath = normalizePath(dataFilepath)
 
-	if jsonFilepath != "" {
-		jsonData, err := loadJson(jsonFilepath)
-		fatalIfErr(err)
-		if jsonData["items"] == nil {
-			log.Fatalln("Cannot find key 'items' in the JSON file.")
+	if dataFilepath != "" {
+		var data dataObj
+		var err error
+
+		switch strings.ToLower(filepath2.Ext(dataFilepath)) {
+		case ".json":
+			data, err = loadJson(dataFilepath)
+			fatalIfErr(err)
+		case ".yaml":
+			data, err = loadYaml(dataFilepath)
+			fatalIfErr(err)
+		}
+
+		if data["items"] == nil {
+			log.Fatalln("Cannot find key 'items' in the data file.")
 		} else {
-			jsonFileItems = jsonData["items"].(jsonArr)
+			dataFileItems = data["items"].(dataArr)
 		}
 	}
 }
@@ -245,13 +255,13 @@ func prepareInternalImage(rootDir, rootRelPath string) imagePlacemark {
 	}
 
 	// overwrite data from exif with data from json
-	if jsonFileItems != nil {
-		for _, obj := range jsonFileItems {
-			if f, ok := obj.(jsonObj)["file"]; ok {
+	if dataFileItems != nil {
+		for _, obj := range dataFileItems {
+			if f, ok := obj.(dataObj)["file"]; ok {
 				fs := normalizePath(f.(string))
 				if keepDirStructure && fs == img.path || includePathIntoFilename(fs) == img.path {
-					img.setJsonData(obj.(jsonObj))
-					img.applyDataFromJson()
+					img.setCustomData(obj.(dataObj))
+					img.applyCustomData()
 				}
 			}
 		}
@@ -266,19 +276,19 @@ func prepareInternalImage(rootDir, rootRelPath string) imagePlacemark {
 }
 
 /*
-Returns imagePlacemarks with pure external images loaded from the JSON file.
+Returns imagePlacemarks with pure external images loaded from the JSON/YAML file.
  */
 func getExternalImages() (images []imagePlacemark, err error) {
 	images = make([]imagePlacemark, 0)
-	if jsonFileItems == nil {
+	if dataFileItems == nil {
 		return
 	}
-	for _, obj := range jsonFileItems {
-		_, isExt := obj.(jsonObj)["external"]
-		if _, isInt := obj.(jsonObj)["file"]; isExt && !isInt { // only pure external images without local files
+	for _, obj := range dataFileItems {
+		_, isExt := obj.(dataObj)["external"]
+		if _, isInt := obj.(dataObj)["file"]; isExt && !isInt { // only pure external images without local files
 			img := imagePlacemark{}
-			img.setJsonData(obj.(jsonObj))
-			img.applyDataFromJson()  // sets also externalPath
+			img.setCustomData(obj.(dataObj))
+			img.applyCustomData() // sets also externalPath
 			images = append(images, img)
 			fmt.Println(img.externalPath)
 		}

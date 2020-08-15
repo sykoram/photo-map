@@ -7,7 +7,8 @@ An image gallery placed on a map!
 - [Usage](#usage)
   - [Flags](#flags)
   - [Modes](#modes)
-  - [JSON file](#json-file)
+  - [Custom data file](#custom-data-file)
+  - [Viewing the results](#viewing-the-results)
 
 
 ## Setup
@@ -46,7 +47,7 @@ photo-map -i IMAGE_DIR -o OUTPUT_DIR
 
 `-m MODE` sets a [mode](#modes) of an image representation.
 
-`-json JSON_FILE` defines path to a [JSON file](#json-file) with user-specified image properties.
+`-data DATA_FILE` defines path to a [file with user-specified image data](#custom-data-file).
 
 `-timesort` orders the images by timestamp.
 
@@ -66,11 +67,49 @@ photo-map -i IMAGE_DIR -o OUTPUT_DIR
 `photo-overlay`: The image is placed above the map using PhotoOverlay.
 
 
-### JSON file
 
-Using the JSON file, you can specify some information about the images. This will overwrite information extracted from the EXIF.
+### Custom data file
 
-Example:
+Using the custom data file, you can specify some information about the images. This will overwrite information extracted from the EXIF. Both JSON and YAML files are supported, and they follow the same structure.
+
+#### Structure
+
+Inside the main JSON or YAML object, there has to be a key `items`, and its value is an array of objects. Each of these objects contains information about an image:
+
+- `file` specifies the file (image). The path should be relative to the input directory (containing images), so it might be a good idea to put the JSON file also in this directory.
+
+- `dateTime` sets the date and time using the EXIF format: `"2006:01:02 15:04:05"`. Any trailing spaces or null characters are trimmed.
+
+- `timeZone` sets the time zone. It has to be either a valid [tz database name](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) or `"Local"`. If the `dateTime` is not specified in JSON for an image, the `dateTime` from EXIF will be recalculated using the difference between the EXIF time zone (if exists) and the specified zone. This can be used to correct the time and date.
+
+- `latitude` and `longitude` define the GPS coordinations of the image. Positive for north and east, and negative for south and west.
+
+- `external` specifies the absolute path to the corresponding image that is somewhere else (eg. on a website) and is not included in the KMZ file.
+
+If a field is left out, the data from EXIF will not be overwritten. Unknown keys are ignored.
+
+#### YAML example
+
+```yaml
+---
+items:
+- file: path/to/image.jpg
+  dateTime: 2006:01:02 15:04:05
+  timeZone: UTC
+  latitude: 50.09
+  longitude: 14.4
+  external: https://example.com/path/to/image.jpg
+
+- file: image2.jpg
+  latitude: 50.087
+  longitude: 14.42
+
+- file: path/to/image3.jpg
+  external: https://example.com/path/to/image3.jpg
+```
+
+#### JSON example
+
 ```json
 {"items": [
   {

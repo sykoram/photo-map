@@ -9,12 +9,13 @@ import (
 	"os"
 	filepath2 "path/filepath"
 	"strings"
+	"gopkg.in/yaml.v2"
 )
 
 var imageExts = []string{"jpg", "jpeg", "jpe", "jif", "jfif", "jfi", "png", "gif", "webp", "tiff", "tif", "heif", "heic"}
 
-type jsonObj = map[string]interface{}
-type jsonArr = []interface{}
+type dataObj = map[string]interface{}  // JSON or YAML object
+type dataArr = []interface{}  // JSON or YAML array
 
 const pathSlashReplacement = "__"  // used in includePathIntoFilename()
 
@@ -126,13 +127,47 @@ func isImage(info os.FileInfo) bool {
 /*
 Loads JSON file and returns the data
  */
-func loadJson(filepath string) (data jsonObj, err error) {
+func loadJson(filepath string) (data dataObj, err error) {
 	bytes, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		return
 	}
 	err = json.Unmarshal(bytes, &data)
 	return
+}
+
+/*
+Loads YAML file and returns the data
+ */
+func loadYaml(filepath string) (data dataObj, err error) {
+	bytes, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		return
+	}
+	var yamlData map[interface{}]interface{}
+	err = yaml.Unmarshal(bytes, &yamlData)
+	data = convertYamlToJsonObj(yamlData).(dataObj)
+	return
+}
+
+/*
+Converts all YAML object keys from interface{} to string.
+YAML object: map[interface{}]interface{}; JSON object: map[string]interface{}
+ */
+func convertYamlToJsonObj(yamlInt interface{}) interface{} {
+	switch x := yamlInt.(type) {
+	case map[interface{}]interface{}:
+		strmap := map[string]interface{}{}
+		for key, val := range x {
+			strmap[key.(string)] = convertYamlToJsonObj(val)
+		}
+		return strmap
+	case []interface{}:
+		for i, val := range x {
+			x[i] = convertYamlToJsonObj(val)
+		}
+	}
+	return yamlInt
 }
 
 /*
