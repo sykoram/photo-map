@@ -75,11 +75,11 @@ Example:
 {"items": [
   {
     "file": "path/to/image.jpg",
-    "external": "https://example.com/path/to/image.jpg",
     "dateTime": "2006:01:02 15:04:05",
     "timeZone": "UTC",
     "latitude": 50.09,
-    "longitude": 14.4
+    "longitude": 14.4,
+    "external": "https://example.com/path/to/image.jpg"
   },
   {
     "file": "image2.jpg",
@@ -99,13 +99,13 @@ Each of these objects contains information about an image:
 
 `file` specifies the file (image). The path should be relative to the input directory (containing images), so it might be a good idea to put the JSON file also in this directory.
 
-`external` specifies the absolute path to the corresponding image that is somewhere else (eg. on a website) and is not included in the KMZ file.
-
 `dateTime` sets the date and time using the EXIF format: `"2006:01:02 15:04:05"`. Any trailing spaces or null characters are trimmed.
 
 `timeZone` sets the time zone. It has to be either a valid [tz database name](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) or `"Local"`. If the `dateTime` is not specified in JSON for an image, the `dateTime` from EXIF will be recalculated using the difference between the EXIF time zone (if exists) and the specified zone. This can be used to correct the time and date.
 
 `latitude` and `longitude` define the GPS coordinations of the image. Positive for north and east, and negative for south and west.
+
+`external` specifies the absolute path to the corresponding image that is somewhere else (eg. on a website) and is not included in the KMZ file.
 
 If a field is left out, the data from EXIF will not be overwritten. Unknown keys are ignored.
 
