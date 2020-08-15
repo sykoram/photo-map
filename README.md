@@ -15,7 +15,7 @@ An image gallery placed on a map!
 
 [Go](https://golang.org/) and [Git](https://git-scm.com/) have to be installed.
 
-Clone or download this repo, preferably into `$GOPATH/src/github.com/sykoram/photo-map`.
+Clone or download this repo somewhere into `$GOPATH`, preferably into `$GOPATH/src/github.com/sykoram/photo-map`.
 
 Download and install all dependencies:
 ```sh
@@ -27,7 +27,7 @@ And install the photo-map:
 go install
 ```
 
-This creates an executable inside `$GOBIN` (usually `$GOPATH/bin`), and it photo-map should work now. You can try to run:
+This creates an executable inside `$GOBIN` (usually `$GOPATH/bin`), and photo-map should work now. You can try to run:
 
 ```sh
 photo-map -h
