@@ -26,6 +26,8 @@ var kmz bool
 // other global variables
 var outFilesDir string
 var jsonFileItems jsonArr
+var isExternalPreferable = true
+var isExternalIconPreferable = false
 
 // mode
 type modeT string
@@ -69,8 +71,11 @@ func main() {
 	} else {
 		fatalIfErr(copyImagesFlat(imgDir, outFilesDir))
 	}
-	images, err := getImages(outFilesDir)
+	images, err := getInternalImages(outFilesDir)
 	fatalIfErr(err)
+	externalImages, err := getExternalImages()
+	fatalIfErr(err)
+	images = append(images, externalImages...)
 
 	fmt.Println("Generating KML document...")
 
@@ -94,10 +99,10 @@ func main() {
 		img.description = img.dateTime.String() + "<br>"
 		//img.name = "Photo " + strconv.Itoa(i + 1)
 		img.name = strconv.Itoa(i + 1)
-		img.pathInKml = "files/"+img.rootRelPath
-		img.iconPathInKml = "files/"+img.iconRootRelPath
+		setKmlPaths(&img)
+
 		if img.latitude == 0 && img.longitude == 0 {
-			fmt.Println(img.rootRelPath, "GPSLatitude and GPSLongitude == 0")
+			fmt.Println(img.path, "Warning: GPSLatitude and GPSLongitude == 0")
 			img.description += "[0,0 Position]"
 		}
 
@@ -198,7 +203,7 @@ func setup() {
 /*
 Searches the given dir, collects images returns them as image structs. .thumbnail dirs are ignored.
  */
-func getImages(rootDir string) (images []imagePlacemark, err error) {
+func getInternalImages(rootDir string) (images []imagePlacemark, err error) {
 	rootDir = normalizePath(rootDir)
 	images = make([]imagePlacemark, 0)
 
@@ -216,7 +221,7 @@ func getImages(rootDir string) (images []imagePlacemark, err error) {
 		}
 
 		if info.Mode().IsRegular() && isImage(info) {
-			images = append(images, prepareImage(rootDir, path))
+			images = append(images, prepareInternalImage(rootDir, path))
 		}
 
 		return nil
@@ -225,16 +230,16 @@ func getImages(rootDir string) (images []imagePlacemark, err error) {
 }
 
 /*
-Prepares an image struct: loads EXIF and JSON, sets properties, generates a thumbnail
+Prepares an internal image struct: loads EXIF and JSON, sets properties, generates a thumbnail
  */
-func prepareImage(rootDir, rootRelPath string) imagePlacemark {
+func prepareInternalImage(rootDir, rootRelPath string) imagePlacemark {
 	img := imagePlacemark{
-		rootRelPath: rootRelPath,
+		path:    rootRelPath,
 		rootDir: rootDir,
 	}
-	err := img.loadOrigExif(joinPaths(img.rootDir, img.rootRelPath))
+	err := img.loadOrigExif(joinPaths(img.rootDir, img.path))
 	if err != nil && exif.IsCriticalError(err) {
-		log.Println("EXIF of", img.rootRelPath, "has a critical error:", err)
+		log.Println("EXIF of", img.path, "has a critical error:", err)
 	} else {
 		img.applyDataFromExif()
 	}
@@ -244,7 +249,7 @@ func prepareImage(rootDir, rootRelPath string) imagePlacemark {
 		for _, obj := range jsonFileItems {
 			if f, ok := obj.(jsonObj)["file"]; ok {
 				fs := normalizePath(f.(string))
-				if keepDirStructure && fs == img.rootRelPath || includePathIntoFilename(fs) == img.rootRelPath {
+				if keepDirStructure && fs == img.path || includePathIntoFilename(fs) == img.path {
 					img.setJsonData(obj.(jsonObj))
 					img.applyDataFromJson()
 				}
@@ -254,10 +259,49 @@ func prepareImage(rootDir, rootRelPath string) imagePlacemark {
 
 	err = img.createThumbnail()
 	if err != nil {
-		img.iconRootRelPath = img.rootRelPath
+		img.iconPath = img.path
 	}
 
 	return img
+}
+
+/*
+Returns imagePlacemarks with pure external images loaded from the JSON file.
+ */
+func getExternalImages() (images []imagePlacemark, err error) {
+	images = make([]imagePlacemark, 0)
+	if jsonFileItems == nil {
+		return
+	}
+	for _, obj := range jsonFileItems {
+		_, isExt := obj.(jsonObj)["external"]
+		if _, isInt := obj.(jsonObj)["file"]; isExt && !isInt { // only pure external images without local files
+			img := imagePlacemark{}
+			img.setJsonData(obj.(jsonObj))
+			img.applyDataFromJson()  // sets also externalPath
+			images = append(images, img)
+			fmt.Println(img.externalPath)
+		}
+	}
+	return
+}
+
+/*
+Sets paths of image and icon used in KML doc based on whether external or internal path is preferable.
+ */
+func setKmlPaths(img *imagePlacemark) {
+	if isExternalPreferable && img.externalPath != "" || img.path == "" {
+		img.pathInKml = img.externalPath
+	} else {
+		img.pathInKml = "files/" + img.path
+	}
+
+	// icon
+	if isExternalIconPreferable && img.iconExternalPath != "" || img.iconPath == "" {
+		img.iconPathInKml = img.iconExternalPath
+	} else {
+		img.iconPathInKml = "files/" + img.iconPath
+	}
 }
 
 /*

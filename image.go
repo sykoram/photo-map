@@ -10,9 +10,12 @@ import (
 )
 
 type imagePlacemark struct {
-	rootRelPath     string // location of the file relative to the root dir (should be normalized)
-	rootDir         string // actual location of the root dir (should be normalized)
-	iconRootRelPath string // (should be normalized)
+	path       string // location of the file either relative to the root dir (should be normalized) (empty if pure external image)
+	iconPath   string // location of the thumbnail (or the actual image) relative to the root dir (empty if pure external image)
+	rootDir    string // actual location of the root dir (should be normalized) (empty if pure external image)
+
+	externalPath     string
+	iconExternalPath string
 
 	pathInKml     string // path used in KML file
 	iconPathInKml string // ~
@@ -86,13 +89,19 @@ func (i *imagePlacemark) setJsonData(data jsonObj) {
 
 /*
 Sets image properties according to the JSON object for the image
-Used JSON fields/keys: "dateTime" string, "timeZone" string, "latitude" float64, "longitude" float64
+Used JSON fields/keys: "external" string, "dateTime" string, "timeZone" string, "latitude" float64, "longitude" float64
  */
 func (i *imagePlacemark) applyDataFromJson() {
 	if i.jsonData == nil {
 		return
 	}
 	var err error
+
+	// external path
+	if ext, ok := i.jsonData["external"]; ok {
+		i.externalPath = ext.(string)
+		i.iconExternalPath = ext.(string)
+	}
 
 	// dateTime (+ timeZone)
 	if dt, ok := i.jsonData["dateTime"]; ok {
@@ -145,7 +154,7 @@ func (i *imagePlacemark) createThumbnail() (err error) {
 		return
 	}
 
-	imgDir, imgName := filepath2.Split(i.rootRelPath)
+	imgDir, imgName := filepath2.Split(i.path)
 	tRelPath := imgDir + ".thumbnails/" + imgName
 	f, err := createFile(joinPaths(i.rootDir, tRelPath))
 	if err != nil {
@@ -157,6 +166,6 @@ func (i *imagePlacemark) createThumbnail() (err error) {
 	if err != nil {
 		return
 	}
-	i.iconRootRelPath = tRelPath
+	i.iconPath = tRelPath
 	return
 }

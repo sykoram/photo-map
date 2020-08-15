@@ -75,6 +75,7 @@ Example:
 {"items": [
   {
     "file": "path/to/image.jpg",
+    "external": "https://example.com/path/to/image.jpg",
     "dateTime": "2006:01:02 15:04:05",
     "timeZone": "UTC",
     "latitude": 50.09,
@@ -84,6 +85,10 @@ Example:
     "file": "image2.jpg",
     "latitude": 50.087,
     "longitude": 14.42
+  },
+  {
+    "file": "path/to/image3.jpg",
+    "external": "https://example.com/path/to/image3.jpg"
   }
 ]}
 ```
@@ -93,6 +98,8 @@ The `items` key inside the main object is required, and its value is an array of
 Each of these objects contains information about an image:
 
 `file` specifies the file (image). The path should be relative to the input directory (containing images), so it might be a good idea to put the JSON file also in this directory.
+
+`external` specifies the absolute path to the corresponding image that is somewhere else (eg. on a website) and is not included in the KMZ file.
 
 `dateTime` sets the date and time using the EXIF format: `"2006:01:02 15:04:05"`. Any trailing spaces or null characters are trimmed.
 

@@ -85,7 +85,7 @@ func joinPaths(path ...string) string {
 }
 
 /*
-Copies a tree (all regular files, doesn't create empty dirs). The rootRelPath dir is not copied (only sub-dirs/sub-files).
+Copies a tree (all regular files, doesn't create empty dirs). The path dir is not copied (only sub-dirs/sub-files).
  */
 func copyTree(src, dst string) error {
 	src = normalizePath(src)
@@ -95,7 +95,7 @@ func copyTree(src, dst string) error {
 		}
 
 		srcRelPath := normalizePath(path)
-		srcRelPath = strings.Replace(srcRelPath, src+"/", "", 1) // the srcRelPath will begin with a sub-dir/sub-file in rootRelPath dir
+		srcRelPath = strings.Replace(srcRelPath, src+"/", "", 1) // the srcRelPath will begin with a sub-dir/sub-file in path dir
 		dstPath := normalizePath(dst+"/"+ srcRelPath)
 
 		if info.Mode().IsRegular() {
