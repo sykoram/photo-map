@@ -3,12 +3,24 @@
 An image gallery placed on a map!
 
 ## Table of Contents
+- [Features](#features)
 - [Setup](#setup)
 - [Usage](#usage)
   - [Flags](#flags)
   - [Modes](#modes)
   - [Custom data file](#custom-data-file)
   - [Viewing the results](#viewing-the-results)
+
+## Features
+
+- simple CLI program 
+- generate a KML file with images placed on a map (open in eg. Google Earth)
+- image data automatically extracted from EXIF
+- specify custom image info using a JSON or YAML file
+- order images by time
+- generate trip path
+- zip KML and resources to KMZ file
+- supports external images
 
 
 ## Setup
