@@ -45,17 +45,17 @@ photo-map -i IMAGE_DIR -o OUTPUT_DIR
 
 ### Flags
 
-`-m MODE` sets a [mode](#modes) of an image representation.
+- `-m MODE` sets a [mode](#modes) of an image representation.
 
-`-data DATA_FILE` defines path to a [file with user-specified image data](#custom-data-file).
+- `-data DATA_FILE` defines path to a [file with user-specified image data](#custom-data-file).
 
-`-timesort` orders the images by timestamp.
+- `-timesort` orders the images by timestamp.
 
-`-path` draws lines between the images (`-timesort` is recommended).
+- `-path` draws lines between the images (`-timesort` is recommended).
 
-`-include-zero-location` includes images with [0,0] location into the path (this will not work without `-path`).
+- `-include-zero-location` includes images with [0,0] location into the path (this will not work without `-path`).
 
-`-kmz` zips the output directory into a one KMZ file.
+- `-kmz` zips the output directory into a one KMZ file.
 
 
 ### Modes
