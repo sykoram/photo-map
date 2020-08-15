@@ -1,6 +1,6 @@
 # photo-map
 
-An image gallery placed on a map!
+A photo gallery placed on a map!
 
 ## Table of Contents
 - [Features](#features)
