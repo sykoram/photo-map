@@ -78,6 +78,8 @@ photo-map -i IMAGE_DIR -o OUTPUT_DIR
 
 `photo-overlay`: The image is placed above the map using PhotoOverlay.
 
+`gx-carousel`: `<gx:Carousel>` is used. This is improved `html-image`, but only Google Earth Web seems to support it.
+
 
 
 ### Custom data file
