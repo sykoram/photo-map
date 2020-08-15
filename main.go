@@ -165,14 +165,14 @@ func checkCmd() {
 }
 
 /*
-Handles help flag -h. If the help is requested, prints program description and flags.
-TODO
+Handles help flag -h. If the help is requested, prints program description and usage, and exits.
 */
 func handleHelp() {
 	if help {
 		fmt.Println("photo-map")
-		fmt.Println("")
-		fmt.Println("Usage:")
+		fmt.Println("An image gallery placed on a map!")
+		fmt.Println("\nSee https://github.com/sykoram/photo-map for documentation and more information.")
+		fmt.Println("\nUsage:")
 		flag.PrintDefaults()
 		os.Exit(0)
 	}
