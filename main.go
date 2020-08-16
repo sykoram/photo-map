@@ -24,7 +24,6 @@ var pathIncludeZeroLoc bool
 var kmz bool
 
 // other global variables
-var outFilesDir string
 var dataFileItems dataArr
 var isExternalPreferable = true
 var isExternalIconPreferable = false
@@ -63,43 +62,28 @@ func main() {
 	checkCmd()
 	setup()
 
-	k, doc := getKmlDoc()
+	fmt.Println("Indexing images...")
+	images, err := indexImages(imgDir)
+	fatalIfErr(err)
 
 	fmt.Println("Collecting images...")
-	if keepDirStructure {
-		fatalIfErr(copyTree(imgDir, outFilesDir))
-	} else {
-		fatalIfErr(copyImagesFlat(imgDir, outFilesDir))
-	}
-	images, err := getInternalImages(outFilesDir)
-	fatalIfErr(err)
-	externalImages, err := getExternalImages()
-	fatalIfErr(err)
-	images = append(images, externalImages...)
+	collectImages(images)
 
 	fmt.Println("Generating KML document...")
+	k, doc := getKmlDoc()
 
 	if sortByTime {
-		sort.Slice(images, func(i int, j int) bool {
-			return images[i].dateTime.Before(images[j].dateTime)
-		})
+		orderImagesByTime(images)
 	}
 
 	if genPath {
-		coords := make([]kml.Coordinate, 0)
-		for _, img := range images {
-			if pathIncludeZeroLoc || (img.longitude != 0 || img.latitude != 0) {
-				coords = append(coords, kml.Coordinate{Lon: img.longitude, Lat: img.latitude})
-			}
-		}
-		generatePath(doc, coords)
+		generatePath(images, doc)
 	}
 
 	for i, img := range images {
 		img.description = img.dateTime.String() + "<br>"
 		//img.name = "Photo " + strconv.Itoa(i + 1)
 		img.name = strconv.Itoa(i + 1)
-		setKmlPaths(&img)
 
 		if img.latitude == 0 && img.longitude == 0 {
 			fmt.Println(img.path, "Warning: GPSLatitude and GPSLongitude == 0")
@@ -126,7 +110,7 @@ func main() {
 
 	if kmz {
 		fmt.Println("Creating KMZ file...")
-		zipFolderContents(outDir, outDir + "/doc.kmz")
+		zipFolderContents(outDir, outDir+"/doc.kmz")
 	}
 	fmt.Println("Done!")
 }
@@ -186,7 +170,6 @@ Loads JSON or YAML file with custom image data if possible.
 func setup() {
 	imgDir = normalizePath(imgDir)
 	outDir = normalizePath(outDir)
-	outFilesDir = outDir + "/files"
 	dataFilepath = normalizePath(dataFilepath)
 
 	if dataFilepath != "" {
@@ -208,6 +191,29 @@ func setup() {
 			dataFileItems = data["items"].(dataArr)
 		}
 	}
+}
+
+/*
+Returns imagePlacemarks created using both internal and external images.
+Internal images are collected from the rootDir.
+Purely external images are loaded from the JSON or YAML data file.
+The returned structs have kmlPaths already set.
+ */
+func indexImages(rootDir string) (images []imagePlacemark, err error) {
+	images, err = getInternalImages(rootDir)
+	if err != nil {
+		return
+	}
+	externalImages, err := getExternalImages()
+	if err != nil {
+		return
+	}
+	images = append(images, externalImages...)
+
+	for i := range images {
+		images[i].setKmlPaths(isExternalPreferable, isExternalIconPreferable)
+	}
+	return
 }
 
 /*
@@ -276,7 +282,7 @@ func prepareInternalImage(rootDir, rootRelPath string) imagePlacemark {
 }
 
 /*
-Returns imagePlacemarks with pure external images loaded from the JSON/YAML file.
+Returns imagePlacemarks with purely external images loaded from the JSON/YAML file.
  */
 func getExternalImages() (images []imagePlacemark, err error) {
 	images = make([]imagePlacemark, 0)
@@ -297,21 +303,39 @@ func getExternalImages() (images []imagePlacemark, err error) {
 }
 
 /*
-Sets paths of image and icon used in KML doc based on whether external or internal path is preferable.
+Copies necessary internal images or thumbnails to the output directory.
  */
-func setKmlPaths(img *imagePlacemark) {
-	if isExternalPreferable && img.externalPath != "" || img.path == "" {
-		img.pathInKml = img.externalPath
-	} else {
-		img.pathInKml = "files/" + img.path
+func collectImages(images []imagePlacemark) {
+	for _, img := range images {
+		if img.isInternal {
+			printIfErr(copyFile(img.rootDir + "/" + img.path, outDir + "/" + img.pathInKml))
+		}
+		if img.isIconInternal {
+			printIfErr(copyFile(img.rootDir + "/" + img.iconPath, outDir + "/" + img.iconPathInKml))
+		}
 	}
+}
 
-	// icon
-	if isExternalIconPreferable && img.iconExternalPath != "" || img.iconPath == "" {
-		img.iconPathInKml = img.iconExternalPath
-	} else {
-		img.iconPathInKml = "files/" + img.iconPath
+/*
+Orders images by its timestamp.
+ */
+func orderImagesByTime(images []imagePlacemark) {
+	sort.Slice(images, func(i int, j int) bool {
+		return images[i].dateTime.Before(images[j].dateTime)
+	})
+}
+
+/*
+Generates a path (line) that connects the images
+ */
+func generatePath(images []imagePlacemark, doc *kml.CompoundElement) {
+	coords := make([]kml.Coordinate, 0)
+	for _, img := range images {
+		if pathIncludeZeroLoc || (img.longitude != 0 || img.latitude != 0) {
+			coords = append(coords, kml.Coordinate{Lon: img.longitude, Lat: img.latitude})
+		}
 	}
+	createLine(doc, coords)
 }
 
 /*

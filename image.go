@@ -14,6 +14,9 @@ type imagePlacemark struct {
 	iconPath   string // location of the thumbnail (or the actual image) relative to the root dir (empty if pure external image)
 	rootDir    string // actual location of the root dir (should be normalized) (empty if pure external image)
 
+	isInternal     bool
+	isIconInternal bool
+
 	externalPath     string
 	iconExternalPath string
 
@@ -168,4 +171,24 @@ func (i *imagePlacemark) createThumbnail() (err error) {
 	}
 	i.iconPath = tRelPath
 	return
+}
+
+/*
+Sets paths of image and icon used in KML doc based on whether external or internal path is preferable.
+ */
+func (i *imagePlacemark) setKmlPaths(preferExternal, preferExternalIcon bool) {
+	if preferExternal && i.externalPath != "" || i.path == "" {
+		i.pathInKml = i.externalPath
+	} else {
+		i.pathInKml = "files/" + i.path
+		i.isInternal = true
+	}
+
+	// icon
+	if preferExternalIcon && i.iconExternalPath != "" || i.iconPath == "" {
+		i.iconPathInKml = i.iconExternalPath
+	} else {
+		i.iconPathInKml = "files/" + i.iconPath
+		i.isIconInternal = true
+	}
 }
