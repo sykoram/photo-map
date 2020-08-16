@@ -3,21 +3,18 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
-	"log"
 	"os"
 	filepath2 "path/filepath"
 	"strings"
-	"gopkg.in/yaml.v2"
 )
 
 var imageExts = []string{"jpg", "jpeg", "jpe", "jif", "jfif", "jfi", "png", "gif", "webp", "tiff", "tif", "heif", "heic"}
 
 type dataObj = map[string]interface{}  // JSON or YAML object
 type dataArr = []interface{}  // JSON or YAML array
-
-const pathSlashReplacement = "__"  // used in includePathIntoFilename()
 
 /*
 Creates a directory with parent directories if required.
@@ -86,32 +83,6 @@ func joinPaths(path ...string) string {
 }
 
 /*
-Copies a tree (all regular files, doesn't create empty dirs). The path dir is not copied (only sub-dirs/sub-files).
- */
-func copyTree(src, dst string) error {
-	src = normalizePath(src)
-	err := filepath2.Walk(src, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			log.Println(path, err)
-		}
-
-		srcRelPath := normalizePath(path)
-		srcRelPath = strings.Replace(srcRelPath, src+"/", "", 1) // the srcRelPath will begin with a sub-dir/sub-file in path dir
-		dstPath := normalizePath(dst+"/"+ srcRelPath)
-
-		if info.Mode().IsRegular() {
-			err = copyFile(src+"/"+srcRelPath, dstPath)
-			if err != nil {
-				log.Println(path, err)
-			}
-		}
-
-		return nil
-	})
-	return err
-}
-
-/*
 Returns true if the name has an extension of an image
  */
 func isImage(info os.FileInfo) bool {
@@ -168,39 +139,4 @@ func convertYamlToJsonObj(yamlInt interface{}) interface{} {
 		}
 	}
 	return yamlInt
-}
-
-/*
-Copies images from src tree to dst directory. All images are on the same level.
-Slashes in path are replaced with two underscores (path/to/file.ext -> path__to__file.ext) to try to avoid collisions.
- */
-func copyImagesFlat(src, dst string) error {
-	src = normalizePath(src)
-	err := filepath2.Walk(src, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			log.Println(path, err)
-		}
-
-		srcRelPath := normalizePath(path)
-		srcRelPath = strings.Replace(srcRelPath, src+"/", "", 1) // remove the src dir from the path
-		dstFileName := includePathIntoFilename(srcRelPath)
-		dstPath := normalizePath(dst+"/"+dstFileName)
-
-		if info.Mode().IsRegular() && isImage(info) {
-			err = copyFile(src+"/"+srcRelPath, dstPath)
-			if err != nil {
-				log.Println(path, err)
-			}
-		}
-		return nil
-	})
-	return err
-}
-
-/*
-Slashes in the path are replaced with two underscores (path/to/file.ext -> path__to__file.ext).
- */
-func includePathIntoFilename(path string) string {
-	path = normalizePath(path)
-	return strings.ReplaceAll(path, "/", pathSlashReplacement)
 }

@@ -39,8 +39,6 @@ const (
 var availableModes = []modeT{htmlImageM, descriptionImagesM, photoOverlaysM, gxCarouselM}
 var mode modeT
 
-const keepDirStructure = true // otherwise put all the files inside one directory - copyImagesFlat()
-
 func init() {
 	flag.BoolVar(&help, "h", false, "")
 	flag.BoolVar(&help, "help", false, "")
@@ -265,7 +263,7 @@ func prepareInternalImage(rootDir, rootRelPath string) imagePlacemark {
 		for _, obj := range dataFileItems {
 			if f, ok := obj.(dataObj)["file"]; ok {
 				fs := normalizePath(f.(string))
-				if keepDirStructure && fs == img.path || includePathIntoFilename(fs) == img.path {
+				if fs == img.path {
 					img.setCustomData(obj.(dataObj))
 					img.applyCustomData()
 				}
