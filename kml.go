@@ -220,9 +220,9 @@ func newSimpleEl(name, value string) *kml.SimpleElement {
 }
 
 /*
-Generates a line connecting the given coordinates.
+Creates a line connecting the given coordinates.
  */
-func generatePath(el *kml.CompoundElement, coordinates []kml.Coordinate) {
+func createLine(el *kml.CompoundElement, coordinates []kml.Coordinate) {
 	el.Add(
 		kml.Placemark(
 			kml.Name(pathName),
