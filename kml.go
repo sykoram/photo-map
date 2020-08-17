@@ -124,7 +124,7 @@ func addGxPanelHtmlImage(el *kml.CompoundElement, img imagePlacemark) {
 <html>
 <head>
 	<style>
-		img {display: block; max-width: 800px; max-height: 800px; width: auto; height: auto;}
+		img {display: block; max-width: 100%; max-height: 100%; width: auto; height: auto;}
 	</style>
 </head>
 <body>
