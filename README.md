@@ -72,13 +72,17 @@ photo-map -i IMAGE_DIR -o OUTPUT_DIR
 
 ### Modes
 
-`html-image`: The image is an `<img>` tag inside a HTML balloon style (it is not in the description field).
+Different applications use different types of image representation. 
 
-`description-image`: The image is a HTML `<img>` tag in the description.
+`g-earth-web` (Google Earth Web): `<gx:Carousel>` is used.
 
-`photo-overlay`: The image is placed above the map using PhotoOverlay.
+`g-earth-web-panel` (Google Earth Web): `<img>` tag inside HTML, `panel` balloon style.
 
-`gx-carousel`: `<gx:Carousel>` is used. This is improved `html-image`, but only Google Earth Web seems to support it.
+`g-earth-pro` (Google Earth Pro): The image is an `<img>` tag inside a HTML balloon style (it is not in the description field).
+
+`g-maps` (Google Maps): The image is a HTML `<img>` tag in the description.
+
+`g-earth-photo-overlay` (Google Earth Pro): The image is placed above the map using PhotoOverlay.
 
 
 

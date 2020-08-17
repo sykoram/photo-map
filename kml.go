@@ -8,9 +8,6 @@ import (
 
 var iconScale = 2.0
 
-var descImgMaxWidth = "800px"
-var descImgMaxHeight = "800px"
-
 var pathName = "Path"
 var pathLineColor = color.RGBA{R: 0x00, G: 0xff, B: 0x7f, A: 0xff}
 var pathLineWidth = 4.0
@@ -37,10 +34,16 @@ func addDescriptionImagePlacemark(el *kml.CompoundElement, img imagePlacemark) {
 	el.Add(
 		kml.Placemark(
 			kml.Name(img.name),
-			kml.Description(`<!DOCTYPE html><html><head></head><body>
-<p>`+img.description+`</p>
-<img src="`+img.pathInKml+`" style="display: block; max-width:`+descImgMaxWidth+`; max-height:`+descImgMaxHeight+`; width: auto; height: auto;" />
-</body></html>`),
+			kml.Description(`
+<!DOCTYPE html>
+<html>
+<head></head>
+<body>
+	<img src="`+img.pathInKml+`" style="display: block; max-width: 800px; max-height: 800px; width: auto; height: auto;" />
+	<p>`+img.description+`</p>
+</body>
+</html>
+`),
 			kml.Point(
 				kml.Coordinates(kml.Coordinate{Lat: img.latitude, Lon: img.longitude}),
 			),
@@ -81,16 +84,57 @@ func addHtmlImagePlacemark(el *kml.CompoundElement, img imagePlacemark) {
 <html>
 <head>
 	<style>
-		img {display: block; max-width:`+descImgMaxWidth+`; max-height:`+descImgMaxHeight+`; width: auto; height: auto;}
+		img {display: block; max-width: 800px; max-height: 800px; width: auto; height: auto;}
 	</style>
 </head>
 <body>
-	<p><b>$[name]</b></p>
-	<p>$[description]</p>
+	<!--<p>$[name]</p>-->
 	<img src="`+img.pathInKml+`"/>
+	<p>$[description]</p>
 </body>
 </html>
 `),
+				),
+			),
+		),
+	)
+}
+
+/*
+Almost same as addHtmlImagePlacemark, but added gx:displayMode panel (so it will be displayed as a panel - in GEW).
+ */
+func addGxPanelHtmlImage(el *kml.CompoundElement, img imagePlacemark) {
+	el.Add(
+		kml.Placemark(
+			kml.Name(img.name),
+			kml.Description(img.description),
+			kml.Point(
+				kml.Coordinates(kml.Coordinate{Lat: img.latitude, Lon: img.longitude}),
+			),
+			kml.Style(
+				kml.Scale(iconScale),
+				kml.IconStyle(
+					kml.Icon(
+						kml.Href(img.iconPathInKml),
+					),
+				),
+				kml.BalloonStyle(
+					kml.Text(`
+<!DOCTYPE html>
+<html>
+<head>
+	<style>
+		img {display: block; max-width: 800px; max-height: 800px; width: auto; height: auto;}
+	</style>
+</head>
+<body>
+	<!--<p>$[name]</p>-->
+	<img src="`+img.pathInKml+`"/>
+	<p>$[description]</p>
+</body>
+</html>
+`),
+					newSimpleEl("gx:displayMode", "panel"),
 				),
 			),
 		),

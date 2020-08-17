@@ -22,22 +22,20 @@ var sortByTime bool
 var genPath bool
 var pathIncludeZeroLoc bool
 var kmz bool
+var mode string
 
 // other global variables
 var dataFileItems dataArr
 var isExternalPreferable = true
 var isExternalIconPreferable = false
 
-// mode
-type modeT string
-const (
-	htmlImageM		   modeT = "html-image"
-	descriptionImagesM modeT = "description-image"
-	photoOverlaysM     modeT = "photo-overlay"
-	gxCarouselM        modeT = "gx-carousel"
-)
-var availableModes = []modeT{htmlImageM, descriptionImagesM, photoOverlaysM, gxCarouselM}
-var mode modeT
+var availableModes = map[string]func (el *kml.CompoundElement, img imagePlacemark){
+	"g-earth-web": addGxCarouselPlacemark,
+	"g-earth-web-panel": addGxPanelHtmlImage,
+	"g-earth-pro": addHtmlImagePlacemark,
+	"g-maps": addDescriptionImagePlacemark,
+	"g-earth-photo-overlay": addPhotoOverlayPlacemark,
+}
 
 func init() {
 	flag.BoolVar(&help, "h", false, "")
@@ -45,8 +43,8 @@ func init() {
 
 	flag.StringVar(&imgDir, "i", "", "Input directory with images (required)")
 	flag.StringVar(&outDir, "o", "", "Output directory for generated KML file and other copied files. Must be empty or not exist! (required)")
-	flag.StringVar((*string)(&mode), "m", string(htmlImageM), fmt.Sprintf("Mode of image representation: %s", availableModes))
 
+	flag.StringVar(&mode, "mode", "g-earth-web", fmt.Sprintf("Different apps use different types of image representation: %s", getModesKeys()))
 	flag.StringVar(&dataFilepath, "data", "", "JSON or YAML file with custom image information\n(it has higher priority than the EXIF info)")
 	flag.BoolVar(&sortByTime, "timesort", false, "Sort images by time (DateTimeOriginal eventually DateTime)")
 	flag.BoolVar(&genPath, "path", false, "Generate path (-timesort is recommended)")
@@ -79,7 +77,7 @@ func main() {
 	}
 
 	for i, img := range images {
-		img.description = img.dateTime.String() + "<br>"
+		img.description = img.dateTime.String()
 		//img.name = "Photo " + strconv.Itoa(i + 1)
 		img.name = strconv.Itoa(i + 1)
 
@@ -88,18 +86,7 @@ func main() {
 			img.description += "[0,0 Position]"
 		}
 
-		switch mode {
-		case descriptionImagesM:
-			addDescriptionImagePlacemark(doc, img)
-		case photoOverlaysM:
-			addPhotoOverlayPlacemark(doc, img)
-		case gxCarouselM:
-			addGxCarouselPlacemark(doc, img)
-		case htmlImageM:
-			addHtmlImagePlacemark(doc, img)
-		default:
-			log.Fatalln("Unknown mode " + mode)
-		}
+		availableModes[mode](doc, img)
 	}
 
 	of, err := createFile(outDir + "/doc.kml")
@@ -128,14 +115,7 @@ func checkCmd() {
 		defer os.Exit(1)
 	}
 
-	modeValid := false
-	for _, m := range availableModes {
-		if mode == m {
-			modeValid = true
-			break
-		}
-	}
-	if !modeValid {
+	if _, ok := availableModes[mode]; !ok {
 		log.Println("Unknown mode: " + mode)
 		defer os.Exit(1)
 	}
@@ -337,6 +317,17 @@ func generatePath(images []imagePlacemark, doc *kml.CompoundElement) {
 }
 
 /*
+Returns string keys of the modes
+ */
+func getModesKeys() []string {
+	var sm []string
+	for key := range availableModes {
+		sm = append(sm, key)
+	}
+	return sm
+}
+
+/*
 If there is an error, produces fatal error (prints the error, exits with a code 1).
  */
 func fatalIfErr(err error) {
@@ -353,4 +344,3 @@ func printIfErr(err error) {
 		log.Println(err)
 	}
 }
-
