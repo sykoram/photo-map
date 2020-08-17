@@ -20,7 +20,7 @@ var outDir string
 var dataFilepath string
 var sortByTime bool
 var genPath bool
-var pathIncludeZeroLoc bool
+var includeNoLocation bool
 var kmz bool
 var mode string
 
@@ -48,7 +48,7 @@ func init() {
 	flag.StringVar(&dataFilepath, "data", "", "JSON or YAML file with custom image information\n(it has higher priority than the EXIF info)")
 	flag.BoolVar(&sortByTime, "timesort", false, "Sort images by time (DateTimeOriginal eventually DateTime)")
 	flag.BoolVar(&genPath, "path", false, "Generate path (-timesort is recommended)")
-	flag.BoolVar(&pathIncludeZeroLoc, "include-zero-location", false, "Include locations with 0,0 coordinate into the path (won't work without -path)")
+	flag.BoolVar(&includeNoLocation, "include-no-location", false, "Do not skip images with no location (they are placed on [0,0])")
 	flag.BoolVar(&kmz, "kmz", false, "Create KMZ file (zip the output directory)")
 }
 
@@ -76,17 +76,20 @@ func main() {
 		generatePath(images, doc)
 	}
 
-	for i, img := range images {
-		img.description = img.dateTime.String()
-		//img.name = "Photo " + strconv.Itoa(i + 1)
-		img.name = strconv.Itoa(i + 1)
-
-		if img.latitude == 0 && img.longitude == 0 {
-			fmt.Println(img.path, "Warning: GPSLatitude and GPSLongitude == 0")
-			img.description += "[0,0 Position]"
+	i := 1
+	for _, img := range images {
+		if !img.hasLocation {
+			fmt.Println(img.path, "has no location")
+			//img.description += "[no location]"
 		}
+		if img.hasLocation || includeNoLocation {
+			img.description = img.dateTime.String()
+			//img.name = "Photo " + strconv.Itoa(i + 1)
+			img.name = strconv.Itoa(i)
+			i++
 
-		availableModes[mode](doc, img)
+			availableModes[mode](doc, img)
+		}
 	}
 
 	of, err := createFile(outDir + "/doc.kml")
@@ -295,7 +298,7 @@ func collectImages(images []imagePlacemark) {
 }
 
 /*
-Orders images by its timestamp.
+Orders images by their timestamp.
  */
 func orderImagesByTime(images []imagePlacemark) {
 	sort.Slice(images, func(i int, j int) bool {
@@ -304,12 +307,13 @@ func orderImagesByTime(images []imagePlacemark) {
 }
 
 /*
-Generates a path (line) that connects the images
+Generates a path (line) that connects the images.
+Images with no location are skipped.
  */
 func generatePath(images []imagePlacemark, doc *kml.CompoundElement) {
 	coords := make([]kml.Coordinate, 0)
 	for _, img := range images {
-		if pathIncludeZeroLoc || (img.longitude != 0 || img.latitude != 0) {
+		if img.hasLocation {
 			coords = append(coords, kml.Coordinate{Lon: img.longitude, Lat: img.latitude})
 		}
 	}

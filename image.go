@@ -32,7 +32,7 @@ type imagePlacemark struct {
 	latitude	 float64
 	longitude	 float64
 
-	//hasLocation  bool  // todo
+	hasLocation  bool
 
 	width  int64
 	length int64
@@ -71,7 +71,7 @@ func (i *imagePlacemark) applyDataFromExif() {
 	if err == nil {
 		i.latitude = lat
 		i.longitude = lon
-		// todo image hasLocation bool property
+		i.hasLocation = true
 	}
 
 	// width & height
@@ -142,9 +142,11 @@ func (i *imagePlacemark) applyCustomData() {
 	// latitude & longitude
 	if lat, ok := i.customData["latitude"]; ok {
 		i.latitude = lat.(float64)
+		i.hasLocation = true
 	}
 	if lon, ok := i.customData["longitude"]; ok {
 		i.longitude = lon.(float64)
+		i.hasLocation = true
 	}
 }
 

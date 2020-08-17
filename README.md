@@ -65,7 +65,7 @@ photo-map -i IMAGE_DIR -o OUTPUT_DIR
 
 - `-path` draws lines between the images (`-timesort` is recommended).
 
-- `-include-zero-location` includes images with [0,0] location into the path (this will not work without `-path`).
+- `-include-no-location` does not skip images without location. They are placed on \[0,0].
 
 - `-kmz` zips the output directory into a one KMZ file.
 
