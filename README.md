@@ -151,3 +151,23 @@ items:
 ```
 
 
+### Viewing the results
+
+#### Google Earth Web
+
+1. open [Google Earth](https://earth.google.com/web/) in a browser
+2. in menu (three horizontal lines in the left upper corner), click on "Projects"
+3. click "Open" or "New project" > "Import KML file from computer" and select the generated KML or KMZ file > "Present"
+
+#### Google Earth Pro (desktop)
+
+1. start Google Earth Pro
+2. click "File" > "Open" > select the generated KML or KMZ file
+
+#### Google Maps
+
+1. go to [Google My Maps](https://mymaps.google.com)
+2. click "Create a new map"
+3. under New layer or Untitled layer, click "Import", and select the generated KML or KMZ file
+
+
