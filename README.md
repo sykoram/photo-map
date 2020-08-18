@@ -57,7 +57,7 @@ photo-map -i IMAGE_DIR -o OUTPUT_DIR
 
 ### Flags
 
-- `-m MODE` sets a [mode](#modes) of an image representation.
+- `-mode MODE` sets a [mode](#modes) of an image representation.
 
 - `-data DATA_FILE` defines path to a [file with user-specified image data](#custom-data-file).
 
