@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/rwcarlsen/goexif/exif"
 	"log"
 	"os"
@@ -154,6 +155,9 @@ func (i *imagePlacemark) applyCustomData() {
 Creates a JPEG thumbnail file from the EXIF thumbnail data and sets img.thumbnailSrc. The thumbnail file is located in .thumbnail dir.
 */
 func (i *imagePlacemark) createThumbnail() (err error) {
+	if i.origExif == nil {
+		return fmt.Errorf("no EXIF")
+	}
 	data, err := i.origExif.JpegThumbnail()
 	if err != nil || len(data) == 0 {
 		return
