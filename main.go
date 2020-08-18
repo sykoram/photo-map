@@ -314,7 +314,10 @@ func generatePath(images []imagePlacemark, doc *kml.CompoundElement) {
 	coords := make([]kml.Coordinate, 0)
 	for _, img := range images {
 		if img.hasLocation {
-			coords = append(coords, kml.Coordinate{Lon: img.longitude, Lat: img.latitude})
+			ic := kml.Coordinate{Lon: img.longitude, Lat: img.latitude}
+			if len(coords) == 0 || coords[len(coords)-1] != ic {  // ignore coordinates if same as previous
+				coords = append(coords, ic)
+			}
 		}
 	}
 	createLine(doc, coords)
