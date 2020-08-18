@@ -142,12 +142,24 @@ func (i *imagePlacemark) applyCustomData() {
 
 	// latitude & longitude
 	if lat, ok := i.customData["latitude"]; ok {
-		i.latitude = lat.(float64)
-		i.hasLocation = true
+		float, ok := lat.(float64)
+		if ok {
+			i.latitude = float
+			i.hasLocation = true
+		} else {
+			i.latitude = 0
+			i.hasLocation = false
+		}
 	}
 	if lon, ok := i.customData["longitude"]; ok {
-		i.longitude = lon.(float64)
-		i.hasLocation = true
+		float, ok := lon.(float64)
+		if ok {
+			i.longitude = float
+			i.hasLocation = true
+		} else {
+			i.longitude = 0
+			i.hasLocation = false
+		}
 	}
 }
 
