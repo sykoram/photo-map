@@ -1,6 +1,9 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"gopkg.in/yaml.v2"
@@ -11,7 +14,15 @@ import (
 	"strings"
 )
 
-var imageExts = []string{"jpg", "jpeg", "jpe", "jif", "jfif", "jfi", "png", "gif", "webp", "tiff", "tif", "heif", "heic"}
+var imageExts = []string{"jpg", "jpeg", "jpe", "jif", "jfif", "jfi", "png", "gif", "tiff", "tif", "heif", "heic"}
+var imageMimeType = map[string]string {
+	"jpg": "image/jpeg", "jpeg": "image/jpeg", "jpe": "image/jpeg", "jif": "image/jpeg", "jfif": "image/jpeg", "jfi": "image/jpeg",
+	"png": "image/png",
+	"gif": "image/gif",
+	"tiff": "image/tiff", "tif": "image/tiff",
+	"heif": "image/heif",
+	"heic": "image/heic",
+}
 
 type dataObj = map[string]interface{}  // JSON or YAML object
 type dataArr = []interface{}  // JSON or YAML array
@@ -139,4 +150,40 @@ func convertYamlToJsonObj(yamlInt interface{}) interface{} {
 		}
 	}
 	return yamlInt
+}
+
+/*
+Reads a file and returns the data in base64.
+ */
+func getBase64Data(filepath string) ([]byte, error) {
+	data, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		return nil, err
+	}
+
+	var b bytes.Buffer
+	w := bufio.NewWriter(&b)
+	w64 := base64.NewEncoder(base64.StdEncoding, w)
+
+	_, err = w64.Write(data)
+	if err != nil {
+		return nil, err
+	}
+	err = w.Flush()
+	if err != nil {
+		return nil, err
+	}
+
+	return b.Bytes(), nil
+}
+
+/*
+Returns MIME type for an image extension. The extension should not start with a dot.
+ */
+func getImageMimeType(ext string) (string, error) {
+	t, ok := imageMimeType[ext]
+	if !ok {
+		return "", fmt.Errorf("found no MIME type for: .%s", ext)
+	}
+	return t, nil
 }

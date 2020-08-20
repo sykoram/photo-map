@@ -23,6 +23,7 @@ var genPath bool
 var includeNoLocation bool
 var kmz bool
 var mode string
+var base64images bool
 
 // other global variables
 var dataFileItems dataArr
@@ -50,6 +51,7 @@ func init() {
 	flag.BoolVar(&genPath, "path", false, "Generate path (-timesort is recommended)")
 	flag.BoolVar(&includeNoLocation, "include-no-location", false, "Do not skip images with no location (they are placed on [0,0])")
 	flag.BoolVar(&kmz, "kmz", false, "Create KMZ file (zip the output directory)")
+	flag.BoolVar(&base64images, "base64", false, "Embed images in base64 in the KML file")
 }
 
 func main() {
@@ -62,8 +64,10 @@ func main() {
 	images, err := indexImages(imgDir)
 	fatalIfErr(err)
 
-	fmt.Println("Collecting images...")
-	collectImages(images)
+	if !base64images {
+		fmt.Println("Collecting images...")
+		collectImages(images)
+	}
 
 	fmt.Println("Generating KML document...")
 	k, doc := getKmlDoc()
@@ -78,6 +82,10 @@ func main() {
 
 	i := 1
 	for _, img := range images {
+		if base64images {
+			err := setBase64Images(&img)
+			printIfErr(err)
+		}
 		if !img.hasLocation {
 			fmt.Println(img.path, "has no location")
 			//img.description += "[no location]"
@@ -321,6 +329,41 @@ func generatePath(images []imagePlacemark, doc *kml.CompoundElement) {
 		}
 	}
 	createLine(doc, coords)
+}
+
+/*
+Sets pathInKml to base64 data of the image file if the image is internal. Same for the icon.
+ */
+func setBase64Images(img *imagePlacemark) error {
+	if img.isInternal {
+		mimeType, err := getImageMimeType(strings.Replace(filepath2.Ext(img.pathInKml), ".", "", 1))
+		if err != nil {
+			return err
+		}
+
+		b64Data, err := getBase64Data(img.rootDir + "/" + img.path)
+		if err != nil {
+			return err
+		}
+
+		img.pathInKml = "data:" + mimeType + ";base64,"
+		img.pathInKml += string(b64Data)
+	}
+	if img.isIconInternal {
+		mimeType, err := getImageMimeType(strings.Replace(filepath2.Ext(img.iconPathInKml), ".", "", 1))
+		if err != nil {
+			return err
+		}
+
+		b64Data, err := getBase64Data(img.rootDir + "/" + img.iconPath)
+		if err != nil {
+			return err
+		}
+
+		img.iconPathInKml = "data:" + mimeType + ";base64,"
+		img.iconPathInKml += string(b64Data)
+	}
+	return nil
 }
 
 /*
