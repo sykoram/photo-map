@@ -24,6 +24,7 @@ var includeNoLocation bool
 var kmz bool
 var mode string
 var base64images bool
+var name string
 
 // other global variables
 var dataFileItems dataArr
@@ -52,6 +53,7 @@ func init() {
 	flag.BoolVar(&includeNoLocation, "include-no-location", false, "Do not skip images with no location (they are placed on [0,0])")
 	flag.BoolVar(&kmz, "kmz", false, "Create KMZ file (zip the output directory)")
 	flag.BoolVar(&base64images, "base64", false, "Embed images in base64 in the KML file")
+	flag.StringVar(&name, "name", "", "Project name")
 }
 
 func main() {
@@ -70,7 +72,7 @@ func main() {
 	}
 
 	fmt.Println("Generating KML document...")
-	k, doc := getKmlDoc()
+	k, doc := getKmlDoc(name)
 
 	if sortByTime {
 		orderImagesByTime(images)

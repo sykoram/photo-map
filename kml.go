@@ -15,8 +15,10 @@ var pathLineWidth = 4.0
 /*
 Returns a KML element and its Document element.
  */
-func getKmlDoc() (kmlEl *kml.CompoundElement, docEl *kml.CompoundElement) {
-	docEl = kml.Document()
+func getKmlDoc(name string) (kmlEl *kml.CompoundElement, docEl *kml.CompoundElement) {
+	docEl = kml.Document(
+		kml.Name(name),
+	)
 	kmlEl = kml.KML(docEl)
 	kmlEl.Attr = append(kmlEl.Attr,
 		xml.Attr{Name: xml.Name{Local: "xmlns:gx"}, Value: "http://www.google.com/kml/ext/2.2"},

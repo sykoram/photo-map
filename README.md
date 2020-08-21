@@ -6,7 +6,7 @@ A photo gallery placed on a map!
 - [Features](#features)
 - [Setup](#setup)
 - [Usage](#usage)
-  - [Flags](#flags)
+  - [Arguments](#arguments)
   - [Modes](#modes)
   - [Custom data file](#custom-data-file)
   - [Viewing the results](#viewing-the-results)
@@ -55,22 +55,28 @@ photo-map -i IMAGE_DIR -o OUTPUT_DIR
 ```
 
 
-### Flags
+### Arguments
 
-- `-mode MODE` sets a [mode](#modes) of an image representation.
+- `-i IMAGE_DIR`: Input directory with images (required)
 
-- `-data DATA_FILE` defines path to a [file with user-specified image data](#custom-data-file).
+- `-o OUTPUT_DIR`: Output directory
 
-- `-timesort` orders the images by timestamp.
+- `-mode MODE`: [Mode](#modes) of an image representation
 
-- `-path` draws lines between the images (`-timesort` is recommended).
+- `-name NAME`: Project name
 
-- `-include-no-location` does not skip images without location. They are placed on \[0,0].
+- `-data DATA_FILE`: Path to a [file with user-specified image data](#custom-data-file)
 
-- `-kmz` zips the output directory into a one KMZ file.
+- `-timesort`: Order images by timestamp.
 
-- `-base64` embeds images in base64 into the KML document. \
+- `-path`: Draw a line between the images (`-timesort` is recommended).
+
+- `-include-no-location`: Do not skip images without location. They are placed on \[0,0].
+
+- `-base64`: Embed images in base64 into the KML document. \
   It may be a good idea to reduce size of the images; otherwise, the generated output KML/KMZ file might be large.
+
+- `-kmz`: Zip the output directory into a one KMZ file.
 
 
 ### Modes
