@@ -77,16 +77,17 @@ photo-map -i IMAGE_DIR -o OUTPUT_DIR
 
 Different applications use different types of image representation. 
 
-`g-earth-web` (Google Earth Web): `<gx:Carousel>` is used.
+`g-earth-web` (**Google Earth Web**): `<gx:Carousel>` is used.
 
-`g-earth-web-panel` (Google Earth Web): `<img>` tag inside HTML, `panel` balloon style.
+`g-earth-web-panel` (**Google Earth Web**): `<img>` tag inside HTML, `panel` balloon style.
 
-`g-earth-pro` (Google Earth Pro): The image is an `<img>` tag inside a HTML balloon style (it is not in the description field).
+`g-earth-pro` (**Google Earth Pro**): The image is an `<img>` tag inside a HTML balloon style (it is not in the description field).
 
-`g-maps` (Google Maps): The image is a HTML `<img>` tag in the description.
+`g-maps` (**Google Maps**): The image is a HTML `<img>` tag in the description.
 
-`g-earth-photo-overlay` (Google Earth Pro): The image is placed above the map using PhotoOverlay.
+`g-earth-photo-overlay` (**Google Earth Pro**): The image is placed above the map using PhotoOverlay.
 
+**Google Earth mobile app** supports usually same modes as Google Earth Web
 
 
 ### Custom data file
