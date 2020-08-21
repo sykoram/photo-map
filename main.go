@@ -82,22 +82,19 @@ func main() {
 
 	i := 1
 	for _, img := range images {
+		// todo collect image/icon here (only if used)
 		if base64images {
 			err := setBase64Images(&img)
 			printIfErr(err)
 		}
-		if !img.hasLocation {
-			fmt.Println(img.path, "has no location")
-			//img.description += "[no location]"
-		}
+		warnIfNoLocation(img)
 		if img.hasLocation || includeNoLocation {
 			img.description = img.dateTime.String()
-			//img.name = "Photo " + strconv.Itoa(i + 1)
 			img.name = strconv.Itoa(i)
 			i++
 
 			availableModes[mode](doc, img)
-		}
+		} // todo else clean
 	}
 
 	of, err := createFile(outDir + "/doc.kml")
@@ -285,7 +282,6 @@ func getExternalImages() (images []imagePlacemark, err error) {
 			img.setCustomData(obj.(dataObj))
 			img.applyCustomData() // sets also externalPath
 			images = append(images, img)
-			fmt.Println(img.externalPath)
 		}
 	}
 	return
@@ -306,9 +302,21 @@ func collectImages(images []imagePlacemark) {
 }
 
 /*
-Orders images by their timestamp.
+Orders images by their timestamp. Warns if an image has no dateTime.
  */
 func orderImagesByTime(images []imagePlacemark) {
+	for _, img := range images {
+		if !img.hasDateTime {
+			path := ""
+			if img.isInternal {
+				path = img.path
+			} else {
+				path = img.externalPath
+			}
+			log.Printf("%s has no dateTime", path)
+		}
+	}
+
 	sort.Slice(images, func(i int, j int) bool {
 		return images[i].dateTime.Before(images[j].dateTime)
 	})
@@ -364,6 +372,21 @@ func setBase64Images(img *imagePlacemark) error {
 		img.iconPathInKml += string(b64Data)
 	}
 	return nil
+}
+
+/*
+Warns if the image has no location.
+ */
+func warnIfNoLocation(img imagePlacemark) {
+	if !img.hasLocation {
+		path := ""
+		if img.isInternal {
+			path = img.path
+		} else {
+			path = img.externalPath
+		}
+		log.Println(path, "has no location")
+	}
 }
 
 /*

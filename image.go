@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/rwcarlsen/goexif/exif"
 	"log"
+	"math"
 	"os"
 	filepath2 "path/filepath"
 	"strings"
@@ -34,6 +35,7 @@ type imagePlacemark struct {
 	longitude	 float64
 
 	hasLocation  bool
+	hasDateTime  bool
 
 	width  int64
 	length int64
@@ -65,6 +67,7 @@ func (i *imagePlacemark) applyDataFromExif() {
 	t, err := i.origExif.DateTime()
 	if err == nil {
 		i.dateTime = t
+		i.hasDateTime = true
 	}
 
 	// latitude & longitude
@@ -121,6 +124,9 @@ func (i *imagePlacemark) applyCustomData() {
 		}
 		i.dateTime, err = time.ParseInLocation(exifTimeLayout, dateStr, location)
 		printIfErr(err)
+		if err == nil {
+			i.hasDateTime = true
+		}
 	}
 
 	// change timeZone only
@@ -142,8 +148,8 @@ func (i *imagePlacemark) applyCustomData() {
 
 	// latitude & longitude
 	if lat, ok := i.customData["latitude"]; ok {
-		float, ok := lat.(float64)
-		if ok {
+		float, err := getFloat64(lat)
+		if err == nil {
 			i.latitude = float
 			i.hasLocation = true
 		} else {
@@ -152,8 +158,8 @@ func (i *imagePlacemark) applyCustomData() {
 		}
 	}
 	if lon, ok := i.customData["longitude"]; ok {
-		float, ok := lon.(float64)
-		if ok {
+		float, err := getFloat64(lon)
+		if err == nil {
 			i.longitude = float
 			i.hasLocation = true
 		} else {
@@ -208,5 +214,31 @@ func (i *imagePlacemark) setKmlPaths(preferExternal, preferExternalIcon bool) {
 	} else {
 		i.iconPathInKml = "files/" + i.iconPath
 		i.isIconInternal = true
+	}
+}
+
+/*
+Tries to convert the interface{} to float64.
+ */
+func getFloat64(unk interface{}) (float64, error) {
+	switch i := unk.(type) {
+	case float64:
+		return i, nil
+	case float32:
+		return float64(i), nil
+	case int64:
+		return float64(i), nil
+	case int32:
+		return float64(i), nil
+	case int:
+		return float64(i), nil
+	case uint64:
+		return float64(i), nil
+	case uint32:
+		return float64(i), nil
+	case uint:
+		return float64(i), nil
+	default:
+		return math.NaN(), fmt.Errorf("non-numeric type could not be converted to float")
 	}
 }
