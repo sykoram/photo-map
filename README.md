@@ -69,7 +69,8 @@ photo-map -i IMAGE_DIR -o OUTPUT_DIR
 
 - `-kmz` zips the output directory into a one KMZ file.
 
-- `-base64` embeds images in base64 into the KML document.
+- `-base64` embeds images in base64 into the KML document. \
+  It may be a good idea to reduce size of the images; otherwise, the generated output KML/KMZ file might be large.
 
 
 ### Modes
