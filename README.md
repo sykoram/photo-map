@@ -162,6 +162,12 @@ items:
 2. in menu (three horizontal lines in the left upper corner), click on "Projects"
 3. click "Open" or "New project" > "Import KML file from computer" and select the generated KML or KMZ file > "Present"
 
+#### Google Earth (mobile)
+
+1. open Google Earth app
+2. in menu (three horizontal lines in the left upper corner), tap on "Projects"
+3. tap "Open" > "Import KML file" and select the KML or KMZ file > "Present"
+
 #### Google Earth Pro (desktop)
 
 1. start Google Earth Pro
