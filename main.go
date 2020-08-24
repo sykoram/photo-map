@@ -93,6 +93,7 @@ func main() {
 		generatePath(images, doc)
 	}
 
+	n := 1
 	for i, img := range images {
 		if base64images {
 			err := setBase64Image(img)
@@ -105,7 +106,8 @@ func main() {
 		warnIfNoLocation(img)
 		if img.hasLocation || includeNoLocation {
 			img.description = img.dateTime.String()
-			img.name = strconv.Itoa(i + 1)
+			img.name = strconv.Itoa(n)
+			n++
 
 			availableModes[mode](doc, img)
 		}
