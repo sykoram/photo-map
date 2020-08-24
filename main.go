@@ -171,9 +171,10 @@ Loads JSON or YAML file with custom image data if possible.
 func setup() {
 	imgDir = normalizePath(imgDir)
 	outDir = normalizePath(outDir)
-	dataFilepath = normalizePath(dataFilepath)
 
 	if dataFilepath != "" {
+		dataFilepath = normalizePath(dataFilepath)
+
 		var data dataObj
 		var err error
 
