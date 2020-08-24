@@ -6,13 +6,12 @@ import (
 	"log"
 	"math"
 	"os"
-	filepath2 "path/filepath"
 	"strings"
 	"time"
 )
 
 type imagePlacemark struct {
-	path       string // location of the file either relative to the root dir (should be normalized) (empty if pure external image)
+	path       string // location of the file relative to the root dir (should be normalized) (empty if pure external image)
 	iconPath   string // location of the thumbnail (or the actual image) relative to the root dir (empty if pure external image)
 	rootDir    string // actual location of the root dir (should be normalized) (empty if pure external image)
 
@@ -170,41 +169,13 @@ func (i *imagePlacemark) applyCustomData() {
 }
 
 /*
-Creates a JPEG thumbnail file from the EXIF thumbnail data and sets img.thumbnailSrc. The thumbnail file is located in .thumbnail dir.
-*/
-func (i *imagePlacemark) createThumbnail() (err error) {
-	if i.origExif == nil {
-		return fmt.Errorf("no EXIF")
-	}
-	data, err := i.origExif.JpegThumbnail()
-	if err != nil || len(data) == 0 {
-		return
-	}
-
-	imgDir, imgName := filepath2.Split(i.path)
-	tRelPath := imgDir + ".thumbnails/" + imgName
-	f, err := createFile(joinPaths(i.rootDir, tRelPath))
-	if err != nil {
-		return
-	}
-	defer f.Close()
-
-	_, err = f.Write(data)
-	if err != nil {
-		return
-	}
-	i.iconPath = tRelPath
-	return
-}
-
-/*
 Sets paths of image and icon used in KML doc based on whether external or internal path is preferable.
  */
 func (i *imagePlacemark) setKmlPaths(preferExternal, preferExternalIcon bool) {
 	if preferExternal && i.externalPath != "" || i.path == "" {
 		i.pathInKml = i.externalPath
 	} else {
-		i.pathInKml = "files/" + i.path
+		i.pathInKml = joinPaths("files", i.path)
 		i.isInternal = true
 	}
 
@@ -212,7 +183,7 @@ func (i *imagePlacemark) setKmlPaths(preferExternal, preferExternalIcon bool) {
 	if preferExternalIcon && i.iconExternalPath != "" || i.iconPath == "" {
 		i.iconPathInKml = i.iconExternalPath
 	} else {
-		i.iconPathInKml = "files/" + i.iconPath
+		i.iconPathInKml = joinPaths("files", i.iconPath)
 		i.isIconInternal = true
 	}
 }

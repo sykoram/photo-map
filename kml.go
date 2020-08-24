@@ -32,7 +32,7 @@ func getKmlDoc(name string) (kmlEl *kml.CompoundElement, docEl *kml.CompoundElem
 Add a image placemark into the given element (usually Document or Folder).
 The description image placemark has a HTML img tag in the description.
 */
-func addDescriptionImagePlacemark(el *kml.CompoundElement, img imagePlacemark) {
+func addDescriptionImagePlacemark(el *kml.CompoundElement, img *imagePlacemark) {
 	el.Add(
 		kml.Placemark(
 			kml.Name(img.name),
@@ -65,7 +65,7 @@ func addDescriptionImagePlacemark(el *kml.CompoundElement, img imagePlacemark) {
 Add a image placemark into the given element (usually Document or Folder).
 The HTML image placemark has a HTML balloon style with a img tag.
  */
-func addHtmlImagePlacemark(el *kml.CompoundElement, img imagePlacemark) {
+func addHtmlImagePlacemark(el *kml.CompoundElement, img *imagePlacemark) {
 	el.Add(
 		kml.Placemark(
 			kml.Name(img.name),
@@ -105,7 +105,7 @@ func addHtmlImagePlacemark(el *kml.CompoundElement, img imagePlacemark) {
 /*
 Almost same as addHtmlImagePlacemark, but added gx:displayMode panel (so it will be displayed as a panel - in GEW).
  */
-func addGxPanelHtmlImage(el *kml.CompoundElement, img imagePlacemark) {
+func addGxPanelHtmlImage(el *kml.CompoundElement, img *imagePlacemark) {
 	el.Add(
 		kml.Placemark(
 			kml.Name(img.name),
@@ -147,7 +147,7 @@ func addGxPanelHtmlImage(el *kml.CompoundElement, img imagePlacemark) {
 Add a image placemark into the given element (usually Document or Folder).
 The photo overlay placemark uses PhotoOverlay - the image is not in the description/HTML, but placed above the map.
  */
-func addPhotoOverlayPlacemark(el *kml.CompoundElement, img imagePlacemark) {
+func addPhotoOverlayPlacemark(el *kml.CompoundElement, img *imagePlacemark) {
 	w, l := img.width, img.length
 	if w == 0 || l == 0 { // prevent divide-by-zero exception
 		w = 1
@@ -213,7 +213,7 @@ Add a image placemark into the given element (usually Document or Folder).
 This placemark uses gx:Carousel.
 fixme
  */
-func addGxCarouselPlacemark(el *kml.CompoundElement, img imagePlacemark) {
+func addGxCarouselPlacemark(el *kml.CompoundElement, img *imagePlacemark) {
 	el.Add(
 		kml.Placemark(
 			kml.Name(img.name),

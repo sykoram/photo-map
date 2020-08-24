@@ -77,6 +77,8 @@ photo-map -i IMAGE_DIR -o OUTPUT_DIR
 - `-base64`: Embed images in base64 into the KML document. \
   It may be a good idea to reduce size of the images; otherwise, the generated output KML/KMZ file might be large.
 
+- `-maxsize`: Resize internal images to fit into a MAXSIZE x MAXSIZE box.
+
 - `-kmz`: Zip the output directory into a one KMZ file.
 
 
@@ -84,7 +86,7 @@ photo-map -i IMAGE_DIR -o OUTPUT_DIR
 
 Different applications use different types of image representation. 
 
-`g-earth-web` (**Google Earth Web**): `<gx:Carousel>` is used.
+`g-earth-web` (**Google Earth Web**): `<gx:Carousel>` is used. (recommended, default)
 
 `g-earth-web-panel` (**Google Earth Web**): `<img>` tag inside HTML, `panel` balloon style.
 
