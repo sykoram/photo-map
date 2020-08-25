@@ -181,7 +181,7 @@ func getBase64Data(filepath string) ([]byte, error) {
 Returns MIME type for an image extension. The extension should not start with a dot.
  */
 func getImageMimeType(ext string) (string, error) {
-	t, ok := imageMimeType[ext]
+	t, ok := imageMimeType[strings.ToLower(ext)]
 	if !ok {
 		return "", fmt.Errorf("found no MIME type for: .%s", ext)
 	}
