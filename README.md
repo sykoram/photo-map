@@ -26,6 +26,17 @@ A photo gallery placed on a map!
 
 ## Setup
 
+Just download a binary file from [Releases](https://github.com/sykoram/photo-map/releases). You may want to add photo-map to the path. \
+You should be able to run:
+
+```sh
+photo-map -h
+```
+
+If there is no binary file for your OS and architecture, follow the [Build](#build) section.
+
+### Build
+
 [Go](https://golang.org/) and [Git](https://git-scm.com/) have to be installed.
 
 Clone or download this repo somewhere into `$GOPATH`, preferably into `$GOPATH/src/github.com/sykoram/photo-map`.
