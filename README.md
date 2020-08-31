@@ -20,7 +20,7 @@ A photo gallery placed on a map!
 - order images by time
 - generate trip path
 - embed images in base64 for easier sharing
-- supports external images
+- add external images
 - zip KML and resources to KMZ file
 
 
