@@ -83,6 +83,8 @@ photo-map -i IMAGE_DIR -o OUTPUT_DIR
 
 - `-path`: Draw a line between the images (`-timesort` is recommended).
 
+- `-pathcolor`: Color of the path in format `rrggbb` or `rrggbbaa` (hex)
+
 - `-include-no-location`: Do not skip images without location. They are placed on \[0,0].
 
 - `-base64`: Embed images in base64 into the KML document. \

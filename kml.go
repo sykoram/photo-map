@@ -9,6 +9,7 @@ import (
 var iconScale = 2.0
 
 var pathName = "Path"
+var pathLineColor = color.RGBA{}
 var pathLineWidth = 2.0
 
 /*

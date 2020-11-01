@@ -6,6 +6,7 @@ import (
 	"github.com/disintegration/imaging"
 	"github.com/rwcarlsen/goexif/exif"
 	"github.com/twpayne/go-kml"
+	"image/color"
 	"io/ioutil"
 	"log"
 	"os"
@@ -23,6 +24,7 @@ var dataFilepath string
 var sortByTime bool
 var genPath bool
 var includeNoLocation bool
+var pathColorStr string
 var kmz bool
 var mode string
 var base64images bool
@@ -55,6 +57,7 @@ func init() {
 	flag.StringVar(&dataFilepath, "data", "", "JSON or YAML file with custom image information\n(it has higher priority than the EXIF info)")
 	flag.BoolVar(&sortByTime, "timesort", false, "Sort images by time (DateTimeOriginal eventually DateTime)")
 	flag.BoolVar(&genPath, "path", false, "Generate path (-timesort is recommended)")
+	flag.StringVar(&pathColorStr, "pathcolor", "00ff7fff", "Color of the path; format (hex): 'rrggbb' or 'rrggbbaa'")
 	flag.BoolVar(&includeNoLocation, "include-no-location", false, "Do not skip images with no location (they are placed on [0,0])")
 	flag.BoolVar(&kmz, "kmz", false, "Create KMZ file (zip the output directory)")
 	flag.BoolVar(&base64images, "base64", false, "Embed images in base64 in the KML file")
@@ -195,6 +198,25 @@ func setup() {
 			dataFileItems = data["items"].(dataArr)
 		}
 	}
+
+	var err error
+	pathLineColor, err = parseHexColor(pathColorStr)
+	if err != nil {
+		log.Fatalln("color-parsing error:", err)
+	}
+}
+
+/*
+Converts a hex-string representation of a color to color.RGBA.
+ */
+ func parseHexColor(s string) (color.RGBA, error) {
+	strings.ReplaceAll(s, "#", "")
+	if len(s) == 6 {
+		s += "ff"
+	}
+	c := color.RGBA{}
+	_, err := fmt.Sscanf(s, "%2x%2x%2x%2x", &c.R, &c.G, &c.B, &c.A)
+	return c, err
 }
 
 /*
