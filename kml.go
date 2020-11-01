@@ -9,8 +9,7 @@ import (
 var iconScale = 2.0
 
 var pathName = "Path"
-var pathLineColor = color.RGBA{R: 0x00, G: 0xff, B: 0x7f, A: 0xff}
-var pathLineWidth = 4.0
+var pathLineWidth = 2.0
 
 /*
 Returns a KML element and its Document element.
