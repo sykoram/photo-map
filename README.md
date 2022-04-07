@@ -2,6 +2,8 @@
 
 A photo gallery placed on a map!
 
+*Update 2022-04-07: Looks like <gx:Carousel> no longer works in browser. I will try to investigate this further and fix it.*
+
 ## Table of Contents
 - [Features](#features)
 - [Setup](#setup)
